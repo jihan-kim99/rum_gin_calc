@@ -1,0 +1,381 @@
+@using MudBlazor
+
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider @ref="dialogProvider" />
+<MudSnackbarProvider />
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">
+        <MudIcon Icon="@Icons.Material.Filled.Style" /> Gin Rummy Score Calculator
+    </MudText>
+    
+    <!-- Scoreboard -->
+    <MudPaper Class="pa-4 mb-4" Elevation="4">
+        <MudGrid>
+            <MudItem xs="12" Class="text-center mb-2">
+                <MudText Typo="Typo.h5">
+                    <MudIcon Icon="@Icons.Material.Filled.Scoreboard" /> Scoreboard
+                </MudText>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudPaper Class="pa-3" Style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <MudText Typo="Typo.h6" Align="Align.Center">@player1Name</MudText>
+                    <MudDivider Class="my-2" />
+                    <MudGrid>
+                        <MudItem xs="6">
+                            <MudText Typo="Typo.body1" Align="Align.Center">
+                                <strong>Score:</strong><br/>
+                                <MudText Typo="Typo.h4">@player1Score</MudText>
+                            </MudText>
+                        </MudItem>
+                        <MudItem xs="6">
+                            <MudText Typo="Typo.body1" Align="Align.Center">
+                                <strong>Wins:</strong><br/>
+                                <MudText Typo="Typo.h4">@player1Wins</MudText>
+                            </MudText>
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudPaper Class="pa-3" Style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                    <MudText Typo="Typo.h6" Align="Align.Center">@player2Name</MudText>
+                    <MudDivider Class="my-2" />
+                    <MudGrid>
+                        <MudItem xs="6">
+                            <MudText Typo="Typo.body1" Align="Align.Center">
+                                <strong>Score:</strong><br/>
+                                <MudText Typo="Typo.h4">@player2Score</MudText>
+                            </MudText>
+                        </MudItem>
+                        <MudItem xs="6">
+                            <MudText Typo="Typo.body1" Align="Align.Center">
+                                <strong>Wins:</strong><br/>
+                                <MudText Typo="Typo.h4">@player2Wins</MudText>
+                            </MudText>
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+    
+    <MudGrid>
+        <!-- Player 1 Card -->
+        <MudItem xs="12" md="6">
+            <MudPaper Class="pa-4" Elevation="3">
+                <MudText Typo="Typo.h5" Color="Color.Primary" GutterBottom="true">Player 1</MudText>
+                
+                <MudTextField @bind-Value="player1Name" Label="Player Name" Variant="Variant.Outlined" Class="mb-3" />
+                
+                <MudNumericField @bind-Value="player1Deadwood" Label="Deadwood Points" Variant="Variant.Outlined" 
+                                 Min="0" Max="100" Class="mb-3" HelperText="Cards not in sets or runs" />
+                
+                <MudRadioGroup @bind-Value="player1Action" T="string">
+                    <MudRadio Value="@("none")" Color="Color.Default">Normal Play</MudRadio>
+                    <MudRadio Value="@("knock")" Color="Color.Info">Knock (≤10 deadwood)</MudRadio>
+                    <MudRadio Value="@("gin")" Color="Color.Success">Gin (0 deadwood)</MudRadio>
+                </MudRadioGroup>
+                
+                <MudDivider Class="my-3" />
+                
+                <MudText Typo="Typo.h6">Total Score: <strong>@player1Score</strong></MudText>
+            </MudPaper>
+        </MudItem>
+
+        <!-- Player 2 Card -->
+        <MudItem xs="12" md="6">
+            <MudPaper Class="pa-4" Elevation="3">
+                <MudText Typo="Typo.h5" Color="Color.Secondary" GutterBottom="true">Player 2</MudText>
+                
+                <MudTextField @bind-Value="player2Name" Label="Player Name" Variant="Variant.Outlined" Class="mb-3" />
+                
+                <MudNumericField @bind-Value="player2Deadwood" Label="Deadwood Points" Variant="Variant.Outlined" 
+                                 Min="0" Max="100" Class="mb-3" HelperText="Cards not in sets or runs" />
+                
+                <MudRadioGroup @bind-Value="player2Action" T="string">
+                    <MudRadio Value="@("none")" Color="Color.Default">Normal Play</MudRadio>
+                    <MudRadio Value="@("knock")" Color="Color.Info">Knock (≤10 deadwood)</MudRadio>
+                    <MudRadio Value="@("gin")" Color="Color.Success">Gin (0 deadwood)</MudRadio>
+                </MudRadioGroup>
+                
+                <MudDivider Class="my-3" />
+                
+                <MudText Typo="Typo.h6">Total Score: <strong>@player2Score</strong></MudText>
+            </MudPaper>
+        </MudItem>
+
+        <!-- Calculate Button -->
+        <MudItem xs="12" Class="d-flex justify-center">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" 
+                       OnClick="CalculateRound" StartIcon="@Icons.Material.Filled.Calculate">
+                Calculate Round
+            </MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Default" Size="Size.Large" 
+                       OnClick="ResetGame" StartIcon="@Icons.Material.Filled.Refresh" Class="ml-3">
+                New Game
+            </MudButton>
+        </MudItem>
+
+        <!-- Round Result -->
+        @if (!string.IsNullOrEmpty(roundResult))
+        {
+            <MudItem xs="12">
+                <MudAlert Severity="@resultSeverity" Variant="Variant.Filled" Class="mt-2">
+                    <MudText Typo="Typo.h6">@roundResult</MudText>
+                    @if (!string.IsNullOrEmpty(roundDetails))
+                    {
+                        <MudText Typo="Typo.body2" Class="mt-2">@roundDetails</MudText>
+                    }
+                </MudAlert>
+            </MudItem>
+        }
+
+        <!-- Game Rules Card -->
+        <MudItem xs="12">
+            <MudExpansionPanels>
+                <MudExpansionPanel Text="📖 Game Rules & Scoring">
+                    <MudText Typo="Typo.h6" GutterBottom="true">Card Values:</MudText>
+                    <MudList T="string" Dense="true">
+                        <MudListItem T="string" Icon="@Icons.Material.Filled.CheckCircle">Aces = 1 point</MudListItem>
+                        <MudListItem T="string" Icon="@Icons.Material.Filled.CheckCircle">Number cards = Face value (2-9)</MudListItem>
+                        <MudListItem T="string" Icon="@Icons.Material.Filled.CheckCircle">Face cards (J, Q, K) = 10 points each</MudListItem>
+                    </MudList>
+                    
+                    <MudText Typo="Typo.h6" GutterBottom="true" Class="mt-3">Scoring:</MudText>
+                    <MudList T="string" Dense="true">
+                        <MudListItem T="string" Icon="@Icons.Material.Filled.Info"><strong>Knock:</strong> Deadwood ≤ 10. Score = Opponent's deadwood - Your deadwood</MudListItem>
+                        <MudListItem T="string" Icon="@Icons.Material.Filled.Info"><strong>Undercut:</strong> If opponent's deadwood ≤ knocker's, opponent scores difference + 25 bonus</MudListItem>
+                        <MudListItem T="string" Icon="@Icons.Material.Filled.Info"><strong>Gin:</strong> All cards melded (0 deadwood). Score = 25 + opponent's deadwood</MudListItem>
+                        <MudListItem T="string" Icon="@Icons.Material.Filled.EmojiEvents"><strong>Win:</strong> First to 100 points wins!</MudListItem>
+                    </MudList>
+
+                    <MudText Typo="Typo.h6" GutterBottom="true" Class="mt-3">Melds:</MudText>
+                    <MudList T="string" Dense="true">
+                        <MudListItem T="string" Icon="@Icons.Material.Filled.Style"><strong>Sets:</strong> 3-4 cards of same rank (e.g., 7♥ 7♣ 7♠)</MudListItem>
+                        <MudListItem T="string" Icon="@Icons.Material.Filled.Style"><strong>Runs:</strong> 3+ consecutive cards of same suit (e.g., 5♦ 6♦ 7♦)</MudListItem>
+                    </MudList>
+                </MudExpansionPanel>
+            </MudExpansionPanels>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private MudDialogProvider? dialogProvider;
+
+    // Player 1 state
+    private string player1Name = "Player 1";
+    private int player1Deadwood = 0;
+    private string player1Action = "none";
+    private int player1Score = 0;
+    private int player1Wins = 0;
+
+    // Player 2 state
+    private string player2Name = "Player 2";
+    private int player2Deadwood = 0;
+    private string player2Action = "none";
+    private int player2Score = 0;
+    private int player2Wins = 0;
+
+    // Round result
+    private string roundResult = "";
+    private string roundDetails = "";
+    private Severity resultSeverity = Severity.Info;
+
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+
+    private void CalculateRound()
+    {
+        int roundPoints = 0;
+        string winner = "";
+        
+        // Validate actions
+        if (player1Action == "knock" && player1Deadwood > 10)
+        {
+            roundResult = "❌ Invalid: Player 1 cannot knock with more than 10 deadwood!";
+            roundDetails = "";
+            resultSeverity = Severity.Error;
+            return;
+        }
+        
+        if (player2Action == "knock" && player2Deadwood > 10)
+        {
+            roundResult = "❌ Invalid: Player 2 cannot knock with more than 10 deadwood!";
+            roundDetails = "";
+            resultSeverity = Severity.Error;
+            return;
+        }
+        
+        if (player1Action == "gin" && player1Deadwood != 0)
+        {
+            roundResult = "❌ Invalid: Player 1 cannot go Gin with deadwood!";
+            roundDetails = "";
+            resultSeverity = Severity.Error;
+            return;
+        }
+        
+        if (player2Action == "gin" && player2Deadwood != 0)
+        {
+            roundResult = "❌ Invalid: Player 2 cannot go Gin with deadwood!";
+            roundDetails = "";
+            resultSeverity = Severity.Error;
+            return;
+        }
+
+        // Player 1 goes Gin
+        if (player1Action == "gin")
+        {
+            roundPoints = 25 + player2Deadwood;
+            player1Score += roundPoints;
+            player1Wins++;
+            winner = player1Name;
+            roundResult = $"🎉 {player1Name} goes GIN!";
+            roundDetails = $"Score: 25 (Gin bonus) + {player2Deadwood} (opponent deadwood) = {roundPoints} points. {player1Name} total: {player1Score}";
+            resultSeverity = Severity.Success;
+            CheckWinner();
+            return;
+        }
+
+        // Player 2 goes Gin
+        if (player2Action == "gin")
+        {
+            roundPoints = 25 + player1Deadwood;
+            player2Score += roundPoints;
+            player2Wins++;
+            winner = player2Name;
+            roundResult = $"🎉 {player2Name} goes GIN!";
+            roundDetails = $"Score: 25 (Gin bonus) + {player1Deadwood} (opponent deadwood) = {roundPoints} points. {player2Name} total: {player2Score}";
+            resultSeverity = Severity.Success;
+            CheckWinner();
+            return;
+        }
+
+        // Player 1 knocks
+        if (player1Action == "knock")
+        {
+            // Check for undercut
+            if (player2Deadwood <= player1Deadwood)
+            {
+                // Player 2 undercuts Player 1
+                roundPoints = Math.Abs(player1Deadwood - player2Deadwood) + 25;
+                player2Score += roundPoints;
+                player2Wins++;
+                winner = player2Name;
+                roundResult = $"⚔️ {player2Name} UNDERCUTS {player1Name}!";
+                roundDetails = $"Score: |{player1Deadwood} - {player2Deadwood}| + 25 (undercut bonus) = {roundPoints} points. {player2Name} total: {player2Score}";
+                resultSeverity = Severity.Warning;
+            }
+            else
+            {
+                // Player 1's knock is successful
+                roundPoints = player2Deadwood - player1Deadwood;
+                player1Score += roundPoints;
+                player1Wins++;
+                winner = player1Name;
+                roundResult = $"👊 {player1Name} KNOCKS successfully!";
+                roundDetails = $"Score: {player2Deadwood} (opponent) - {player1Deadwood} (knocker) = {roundPoints} points. {player1Name} total: {player1Score}";
+                resultSeverity = Severity.Info;
+            }
+            CheckWinner();
+            return;
+        }
+
+        // Player 2 knocks
+        if (player2Action == "knock")
+        {
+            // Check for undercut
+            if (player1Deadwood <= player2Deadwood)
+            {
+                // Player 1 undercuts Player 2
+                roundPoints = Math.Abs(player2Deadwood - player1Deadwood) + 25;
+                player1Score += roundPoints;
+                player1Wins++;
+                winner = player1Name;
+                roundResult = $"⚔️ {player1Name} UNDERCUTS {player2Name}!";
+                roundDetails = $"Score: |{player2Deadwood} - {player1Deadwood}| + 25 (undercut bonus) = {roundPoints} points. {player1Name} total: {player1Score}";
+                resultSeverity = Severity.Warning;
+            }
+            else
+            {
+                // Player 2's knock is successful
+                roundPoints = player1Deadwood - player2Deadwood;
+                player2Score += roundPoints;
+                player2Wins++;
+                winner = player2Name;
+                roundResult = $"👊 {player2Name} KNOCKS successfully!";
+                roundDetails = $"Score: {player1Deadwood} (opponent) - {player2Deadwood} (knocker) = {roundPoints} points. {player2Name} total: {player2Score}";
+                resultSeverity = Severity.Info;
+            }
+            CheckWinner();
+            return;
+        }
+
+        // No one knocked or went gin
+        roundResult = "ℹ️ Round continues - No one knocked or went gin yet.";
+        roundDetails = "Select an action (Knock or Gin) to end the round.";
+        resultSeverity = Severity.Normal;
+    }
+
+    private async void CheckWinner()
+    {
+        if (player1Score >= 100 || player2Score >= 100)
+        {
+            // Calculate final scores with bonuses
+            int player1FinalScore = player1Score + (player1Wins * 20);
+            int player2FinalScore = player2Score + (player2Wins * 20);
+            int scoreDifference = Math.Abs(player1FinalScore - player2FinalScore);
+            
+            string gameWinner = player1FinalScore > player2FinalScore ? player1Name : player2Name;
+            
+            var parameters = new DialogParameters
+            {
+                ["Player1Name"] = player1Name,
+                ["Player2Name"] = player2Name,
+                ["Player1Score"] = player1Score,
+                ["Player2Score"] = player2Score,
+                ["Player1Wins"] = player1Wins,
+                ["Player2Wins"] = player2Wins,
+                ["Player1FinalScore"] = player1FinalScore,
+                ["Player2FinalScore"] = player2FinalScore,
+                ["ScoreDifference"] = scoreDifference,
+                ["Winner"] = gameWinner
+            };
+
+            var options = new DialogOptions 
+            { 
+                CloseOnEscapeKey = false,
+                MaxWidth = MaxWidth.Medium,
+                FullWidth = true
+            };
+
+            var dialog = await DialogService.ShowAsync<GameEndDialog>("Game Over!", parameters, options);
+            var result = await dialog.Result;
+
+            if (result != null && !result.Canceled)
+            {
+                ResetGame();
+            }
+        }
+    }
+
+    private void ResetGame()
+    {
+        player1Name = "Player 1";
+        player1Deadwood = 0;
+        player1Action = "none";
+        player1Score = 0;
+        player1Wins = 0;
+
+        player2Name = "Player 2";
+        player2Deadwood = 0;
+        player2Action = "none";
+        player2Score = 0;
+        player2Wins = 0;
+
+        roundResult = "";
+        roundDetails = "";
+        resultSeverity = Severity.Info;
+    }
+}

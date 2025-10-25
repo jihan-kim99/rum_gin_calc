@@ -113,3 +113,4 @@
 /home/jinnk/rum_gin_calc/obj/Debug/net9.0/compressed/tzxjg6is5z-jk5eo7zo4m.gz
 /home/jinnk/rum_gin_calc/obj/Debug/net9.0/compressed/0wz98yz2xy-tjzqk7tnel.gz
 /home/jinnk/rum_gin_calc/obj/Debug/net9.0/rum_gin_.EAC6D3D9.Up2Date
+/home/jinnk/rum_gin_calc/obj/Debug/net9.0/rum_gin_calc.sourcelink.json

@@ -1,0 +1,79 @@
+@using MudBlazor
+@using Microsoft.AspNetCore.Components
+
+<MudDialog>
+    <DialogContent>
+        <div class="text-center">
+            <MudIcon Icon="@Icons.Material.Filled.EmojiEvents" Color="Color.Warning" Style="font-size: 4rem;" />
+            <MudText Typo="Typo.h4" GutterBottom="true" Class="mt-3">
+                🏆 @Winner Wins! 🏆
+            </MudText>
+        </div>
+
+        <MudDivider Class="my-4" />
+
+        <MudPaper Class="pa-4 mb-3" Elevation="2">
+            <MudText Typo="Typo.h6" GutterBottom="true" Align="Align.Center">
+                Final Score Breakdown
+            </MudText>
+            
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudPaper Class="pa-3" Style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <MudText Typo="Typo.h6" Align="Align.Center">@Player1Name</MudText>
+                        <MudDivider Class="my-2" />
+                        <MudText Typo="Typo.body2" Align="Align.Center">Base Score: <strong>@Player1Score</strong></MudText>
+                        <MudText Typo="Typo.body2" Align="Align.Center">Rounds Won: <strong>@Player1Wins</strong></MudText>
+                        <MudText Typo="Typo.body2" Align="Align.Center">Win Bonus: <strong>@Player1Wins × 20 = @(Player1Wins * 20)</strong></MudText>
+                        <MudDivider Class="my-2" />
+                        <MudText Typo="Typo.h5" Align="Align.Center">Total: <strong>@Player1FinalScore</strong></MudText>
+                    </MudPaper>
+                </MudItem>
+                
+                <MudItem xs="12" sm="6">
+                    <MudPaper Class="pa-3" Style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                        <MudText Typo="Typo.h6" Align="Align.Center">@Player2Name</MudText>
+                        <MudDivider Class="my-2" />
+                        <MudText Typo="Typo.body2" Align="Align.Center">Base Score: <strong>@Player2Score</strong></MudText>
+                        <MudText Typo="Typo.body2" Align="Align.Center">Rounds Won: <strong>@Player2Wins</strong></MudText>
+                        <MudText Typo="Typo.body2" Align="Align.Center">Win Bonus: <strong>@Player2Wins × 20 = @(Player2Wins * 20)</strong></MudText>
+                        <MudDivider Class="my-2" />
+                        <MudText Typo="Typo.h5" Align="Align.Center">Total: <strong>@Player2FinalScore</strong></MudText>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+
+        <MudAlert Severity="Severity.Success" Variant="Variant.Filled">
+            <MudText Typo="Typo.h6" Align="Align.Center">
+                @Winner wins by <strong>@ScoreDifference points</strong>!
+            </MudText>
+        </MudAlert>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="StartNewGame" StartIcon="@Icons.Material.Filled.Refresh" FullWidth="true">
+            Start New Game
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    MudBlazor.IMudDialogInstance? MudDialog { get; set; }
+
+    [Parameter] public string Player1Name { get; set; } = "";
+    [Parameter] public string Player2Name { get; set; } = "";
+    [Parameter] public int Player1Score { get; set; }
+    [Parameter] public int Player2Score { get; set; }
+    [Parameter] public int Player1Wins { get; set; }
+    [Parameter] public int Player2Wins { get; set; }
+    [Parameter] public int Player1FinalScore { get; set; }
+    [Parameter] public int Player2FinalScore { get; set; }
+    [Parameter] public int ScoreDifference { get; set; }
+    [Parameter] public string Winner { get; set; } = "";
+
+    private void StartNewGame()
+    {
+        MudDialog?.Close(MudBlazor.DialogResult.Ok(true));
+    }
+}
