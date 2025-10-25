@@ -1,0 +1,72 @@
+@page "/mud-demo-component"
+@using MudBlazor
+
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudText Typo="Typo.h3" GutterBottom="true">Welcome to MudBlazor!</MudText>
+    <MudText Typo="Typo.body1" Class="mb-4">
+        This is a sample interactive component using MudBlazor, a Material Design component library for Blazor.
+    </MudText>
+
+    <MudPaper Class="pa-4 mb-4" Elevation="2">
+        <MudText Typo="Typo.h5" GutterBottom="true">Counter Example</MudText>
+        <MudText Typo="Typo.body1" Class="mb-2">Current count: <strong>@currentCount</strong></MudText>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="IncrementCount">
+            Click me
+        </MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="ResetCount" Class="ml-2">
+            Reset
+        </MudButton>
+    </MudPaper>
+
+    <MudPaper Class="pa-4 mb-4" Elevation="2">
+        <MudText Typo="Typo.h5" GutterBottom="true">Input Example</MudText>
+        <MudTextField @bind-Value="name" Label="Your Name" Variant="Variant.Outlined" Class="mb-2" />
+        @if (!string.IsNullOrWhiteSpace(name))
+        {
+            <MudAlert Severity="Severity.Success">Hello, @name!</MudAlert>
+        }
+    </MudPaper>
+
+    <MudPaper Class="pa-4" Elevation="2">
+        <MudText Typo="Typo.h5" GutterBottom="true">Components Gallery</MudText>
+        <MudGrid>
+            <MudItem xs="12" sm="6" md="4">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true">Primary</MudButton>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudButton Variant="Variant.Filled" Color="Color.Secondary" FullWidth="true">Secondary</MudButton>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="4">
+                <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth="true">Success</MudButton>
+            </MudItem>
+        </MudGrid>
+
+        <MudDivider Class="my-4" />
+
+        <MudChipSet T="string">
+            <MudChip T="string" Color="Color.Primary">Chip 1</MudChip>
+            <MudChip T="string" Color="Color.Secondary">Chip 2</MudChip>
+            <MudChip T="string" Color="Color.Info">Chip 3</MudChip>
+        </MudChipSet>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private int currentCount = 0;
+    private string name = "";
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+
+    private void ResetCount()
+    {
+        currentCount = 0;
+    }
+}
