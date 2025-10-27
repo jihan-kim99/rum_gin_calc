@@ -15,13 +15,13 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
 }
 
+app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
 
 app.MapBlazorHub();
-app.MapStaticAssets();
-app.MapRazorPages()
-   .WithStaticAssets();
+app.MapRazorPages();
+app.MapFallbackToPage("/_Host");
 
 app.Run();
