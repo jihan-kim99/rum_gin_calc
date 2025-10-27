@@ -14,27 +14,28 @@ provider "azurerm" {
 
 resource "azurerm_resource_group" "rg" {
   name     = "rg-blazor-prod"
-  location = "eastus"
+  location = "chilecentral"
 }
 
 resource "azurerm_service_plan" "plan" {
   name                = "asp-blazor-prod"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  sku_name            = "F1"
-  os_type             = "Windows"
+  sku_name            = "B1"
+  os_type             = "Linux"
 }
 
-resource "azurerm_windows_web_app" "app" {
+resource "azurerm_linux_web_app" "app" {
   name                = "blazor-webapp-prod"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   service_plan_id     = azurerm_service_plan.plan.id
 
   site_config {
-    ftps_state = "Disabled"
+    always_on            = true
+    ftps_state           = "Disabled"
     application_stack {
-      dotnet_version = "v8.0"
+      dotnet_version = "8.0"
     }
   }
 
