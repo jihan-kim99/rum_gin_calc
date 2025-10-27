@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("rum_gin_calc")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+049d293e530d41e623fcee69860bf5e2b73cf0f0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b94c01e70792e1ce211f749f08d7e513a9b0f438")]
 [assembly: System.Reflection.AssemblyProductAttribute("rum_gin_calc")]
 [assembly: System.Reflection.AssemblyTitleAttribute("rum_gin_calc")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
