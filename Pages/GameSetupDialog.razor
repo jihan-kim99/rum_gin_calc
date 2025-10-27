@@ -1,0 +1,42 @@
+@using MudBlazor
+@using Microsoft.AspNetCore.Components
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="2">
+            <MudText Typo="Typo.h5" Class="mb-2" Align="Align.Center">
+                <MudIcon Icon="@Icons.Material.Filled.Group" Class="mr-2" />Enter Player Names
+            </MudText>
+            <MudTextField @bind-Value="Player1Name" Label="Player 1" Variant="Variant.Outlined" Required="true" Immediate="true" />
+            <MudTextField @bind-Value="Player2Name" Label="Player 2" Variant="Variant.Outlined" Required="true" Immediate="true" />
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Secondary" Variant="Variant.Text" OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit" Disabled="!IsValid">
+            <MudIcon Icon="@Icons.Material.Filled.PlayArrow" Class="mr-2" />Start Game
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private MudBlazor.IMudDialogInstance? MudDialog { get; set; }
+
+    [Parameter] public string Player1Name { get; set; } = "Player 1";
+    [Parameter] public string Player2Name { get; set; } = "Player 2";
+
+    private bool IsValid => !string.IsNullOrWhiteSpace(Player1Name) && !string.IsNullOrWhiteSpace(Player2Name);
+
+    private void Submit()
+    {
+        if (!IsValid)
+        {
+            return;
+        }
+
+    MudDialog?.Close(DialogResult.Ok((Player1Name.Trim(), Player2Name.Trim())));
+    }
+
+    private void Cancel() => MudDialog?.Cancel();
+}

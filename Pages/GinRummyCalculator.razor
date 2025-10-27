@@ -2,7 +2,7 @@
 
 <MudThemeProvider />
 <MudPopoverProvider />
-<MudDialogProvider @ref="dialogProvider" />
+<MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
@@ -67,8 +67,6 @@
             <MudPaper Class="pa-4" Elevation="3">
                 <MudText Typo="Typo.h5" Color="Color.Primary" GutterBottom="true">Player 1</MudText>
                 
-                <MudTextField @bind-Value="player1Name" Label="Player Name" Variant="Variant.Outlined" Class="mb-3" />
-                
                 <MudNumericField @bind-Value="player1Deadwood" Label="Deadwood Points" Variant="Variant.Outlined" 
                                  Min="0" Max="100" Class="mb-3" HelperText="Cards not in sets or runs" />
                 
@@ -88,8 +86,6 @@
         <MudItem xs="12" md="6">
             <MudPaper Class="pa-4" Elevation="3">
                 <MudText Typo="Typo.h5" Color="Color.Secondary" GutterBottom="true">Player 2</MudText>
-                
-                <MudTextField @bind-Value="player2Name" Label="Player Name" Variant="Variant.Outlined" Class="mb-3" />
                 
                 <MudNumericField @bind-Value="player2Deadwood" Label="Deadwood Points" Variant="Variant.Outlined" 
                                  Min="0" Max="100" Class="mb-3" HelperText="Cards not in sets or runs" />
@@ -113,7 +109,7 @@
                 Calculate Round
             </MudButton>
             <MudButton Variant="Variant.Outlined" Color="Color.Default" Size="Size.Large" 
-                       OnClick="ResetGame" StartIcon="@Icons.Material.Filled.Refresh" Class="ml-3">
+                       OnClick="StartNewGameAsync" StartIcon="@Icons.Material.Filled.Refresh" Class="ml-3">
                 New Game
             </MudButton>
         </MudItem>
@@ -163,8 +159,6 @@
 </MudContainer>
 
 @code {
-    private MudDialogProvider? dialogProvider;
-
     // Player 1 state
     private string player1Name = "Player 1";
     private int player1Deadwood = 0;
@@ -186,10 +180,11 @@
 
     [Inject] private IDialogService DialogService { get; set; } = default!;
 
-    private void CalculateRound()
+    private bool hasShownSetupDialog;
+
+    private async Task CalculateRound()
     {
-        int roundPoints = 0;
-        string winner = "";
+    int roundPoints = 0;
         
         // Validate actions
         if (player1Action == "knock" && player1Deadwood > 10)
@@ -230,11 +225,10 @@
             roundPoints = 25 + player2Deadwood;
             player1Score += roundPoints;
             player1Wins++;
-            winner = player1Name;
             roundResult = $"🎉 {player1Name} goes GIN!";
             roundDetails = $"Score: 25 (Gin bonus) + {player2Deadwood} (opponent deadwood) = {roundPoints} points. {player1Name} total: {player1Score}";
             resultSeverity = Severity.Success;
-            CheckWinner();
+            await CheckWinnerAsync();
             return;
         }
 
@@ -244,11 +238,10 @@
             roundPoints = 25 + player1Deadwood;
             player2Score += roundPoints;
             player2Wins++;
-            winner = player2Name;
             roundResult = $"🎉 {player2Name} goes GIN!";
             roundDetails = $"Score: 25 (Gin bonus) + {player1Deadwood} (opponent deadwood) = {roundPoints} points. {player2Name} total: {player2Score}";
             resultSeverity = Severity.Success;
-            CheckWinner();
+            await CheckWinnerAsync();
             return;
         }
 
@@ -262,7 +255,6 @@
                 roundPoints = Math.Abs(player1Deadwood - player2Deadwood) + 25;
                 player2Score += roundPoints;
                 player2Wins++;
-                winner = player2Name;
                 roundResult = $"⚔️ {player2Name} UNDERCUTS {player1Name}!";
                 roundDetails = $"Score: |{player1Deadwood} - {player2Deadwood}| + 25 (undercut bonus) = {roundPoints} points. {player2Name} total: {player2Score}";
                 resultSeverity = Severity.Warning;
@@ -273,12 +265,11 @@
                 roundPoints = player2Deadwood - player1Deadwood;
                 player1Score += roundPoints;
                 player1Wins++;
-                winner = player1Name;
                 roundResult = $"👊 {player1Name} KNOCKS successfully!";
                 roundDetails = $"Score: {player2Deadwood} (opponent) - {player1Deadwood} (knocker) = {roundPoints} points. {player1Name} total: {player1Score}";
                 resultSeverity = Severity.Info;
             }
-            CheckWinner();
+            await CheckWinnerAsync();
             return;
         }
 
@@ -292,7 +283,6 @@
                 roundPoints = Math.Abs(player2Deadwood - player1Deadwood) + 25;
                 player1Score += roundPoints;
                 player1Wins++;
-                winner = player1Name;
                 roundResult = $"⚔️ {player1Name} UNDERCUTS {player2Name}!";
                 roundDetails = $"Score: |{player2Deadwood} - {player1Deadwood}| + 25 (undercut bonus) = {roundPoints} points. {player1Name} total: {player1Score}";
                 resultSeverity = Severity.Warning;
@@ -303,12 +293,11 @@
                 roundPoints = player1Deadwood - player2Deadwood;
                 player2Score += roundPoints;
                 player2Wins++;
-                winner = player2Name;
                 roundResult = $"👊 {player2Name} KNOCKS successfully!";
                 roundDetails = $"Score: {player1Deadwood} (opponent) - {player2Deadwood} (knocker) = {roundPoints} points. {player2Name} total: {player2Score}";
                 resultSeverity = Severity.Info;
             }
-            CheckWinner();
+            await CheckWinnerAsync();
             return;
         }
 
@@ -318,7 +307,16 @@
         resultSeverity = Severity.Normal;
     }
 
-    private async void CheckWinner()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !hasShownSetupDialog)
+        {
+            hasShownSetupDialog = true;
+            await StartNewGameAsync();
+        }
+    }
+
+    private async Task CheckWinnerAsync()
     {
         if (player1Score >= 100 || player2Score >= 100)
         {
@@ -355,20 +353,60 @@
 
             if (result != null && !result.Canceled)
             {
-                ResetGame();
+                await StartNewGameAsync();
             }
         }
     }
 
-    private void ResetGame()
+    private async Task StartNewGameAsync()
     {
-        player1Name = "Player 1";
+        var names = await PromptForPlayerNamesAsync();
+        if (names is null)
+        {
+            return;
+        }
+
+        var (newPlayer1Name, newPlayer2Name) = names.Value;
+        player1Name = newPlayer1Name;
+        player2Name = newPlayer2Name;
+
+        ResetGameState();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task<(string Player1, string Player2)?> PromptForPlayerNamesAsync()
+    {
+        var parameters = new DialogParameters
+        {
+            ["Player1Name"] = player1Name,
+            ["Player2Name"] = player2Name
+        };
+
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = false,
+            MaxWidth = MaxWidth.ExtraSmall,
+            FullWidth = true
+        };
+
+        var dialog = await DialogService.ShowAsync<GameSetupDialog>("Set Player Names", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is null || result.Canceled || result.Data is not ValueTuple<string, string> tuple)
+        {
+            return null;
+        }
+
+        return (tuple.Item1, tuple.Item2);
+    }
+
+    private void ResetGameState()
+    {
         player1Deadwood = 0;
         player1Action = "none";
         player1Score = 0;
         player1Wins = 0;
 
-        player2Name = "Player 2";
         player2Deadwood = 0;
         player2Action = "none";
         player2Score = 0;

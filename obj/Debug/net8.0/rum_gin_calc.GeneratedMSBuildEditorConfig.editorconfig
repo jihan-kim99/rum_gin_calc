@@ -27,6 +27,10 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvR2FtZUVuZERpYWxvZy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/home/jinnk/rum_gin_calc/Pages/GameSetupDialog.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvR2FtZVNldHVwRGlhbG9nLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
 [/home/jinnk/rum_gin_calc/Pages/GinRummyCalculator.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvR2luUnVtbXlDYWxjdWxhdG9yLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
